@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Load Supabase JS Client library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Load Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Extra styles specific to the mobile client */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            min-height: 100vh;
+        }
+        .jury-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            border: 6px solid #2B1D16; /* Wood frame style */
+            outline: 2px solid var(--border-gold); /* Gold inlay */
+            outline-offset: -5px;
+            border-radius: 2px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 85vh;
+            position: relative;
+            color: var(--text-dark);
+        }
+        /* Inset border for legal paper look */
+        .jury-container::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border: 1px solid rgba(92, 64, 51, 0.15);
+            pointer-events: none;
+        }
+        .jury-header {
+            text-align: center;
+            border-bottom: 1px solid rgba(92, 64, 51, 0.15);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .jury-header h2 {
+            font-family: var(--font-baskerville);
+            color: var(--gold-dark);
+            font-size: 1.45rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .jury-header p {
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+        }
+        .vote-btn-active {
+            animation: bounce 0.3s ease;
+            background: var(--gold) !important;
+            border-color: #FFF !important;
+        }
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="jury-container">
+        
+        <!-- JURY HEADER -->
+        <div class="jury-header">
+            <h2>HỘI ĐỒNG BỒI THẨM</h2>
+            <p>Phiên Tòa Kinh Tế Chính Trị</p>
+            <div id="voter-name-tag" style="font-size: 0.85rem; color: var(--gold); margin-top: 6px; font-weight: 600;"></div>
+        </div>
+
+        <!-- MAIN INTERACTIVE STATE AREA -->
+        <div id="jury-main-content" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%;">
+            <!-- Initial Username Registration -->
+            <div id="registration-view" style="width: 100%; text-align: center;">
+                <h3 class="status-title" style="margin-bottom: 12px;">Nhập Tên Của Bạn</h3>
+                <p class="status-desc" style="margin-bottom: 24px;">Để hệ thống ghi nhận thành viên Hội đồng bồi thẩm.</p>
+                <input type="text" id="voter-nickname" class="nickname-input" placeholder="Ví dụ: Bồi thẩm Nguyễn Văn A" maxlength="25">
+                <button class="btn btn-primary" style="width: 100%; padding: 14px;" onclick="registerNickname()">Tham Gia Phiên Tòa</button>
+            </div>
+
+            <!-- Waiting View -->
+            <div id="waiting-view" style="display: none; text-align: center;">
+                <h3 class="status-title" id="waiting-title">Chờ Đợi Phiên Tòa</h3>
+                <p class="status-desc" id="waiting-desc">Đang kết nối với Thẩm phán. Vui lòng theo dõi màn hình chiếu chính.</p>
+            </div>
+
+            <!-- Active Voting View -->
+            <div id="voting-view" style="display: none; width: 100%;">
+                <div style="text-align: center; margin-bottom: 16px;">
+                    <span class="phase-tag" style="color: var(--jury); border-color: var(--jury); background: rgba(78, 140, 90, 0.1);">CỔNG BIỂU QUYẾT ĐANG MỞ</span>
+                    <h3 id="voting-case-title" style="font-size: 1.15rem; margin-top: 10px; color: var(--text-dark); font-family: var(--font-baskerville); font-weight: 700; text-transform: uppercase;">Vụ Án Cản Trở Cạnh Tranh</h3>
+                    <div style="font-size: 1.3rem; margin-top: 8px; color: var(--jury); font-weight: bold;">
+                        Thời gian còn lại: <span id="voting-timer" style="font-size: 2rem;">30</span>s
+                    </div>
+                </div>
+
+                <div class="vote-buttons-area">
+                    <button id="btn-vote-A" class="vote-btn vote-btn-plaintiff" onclick="submitVote('A')">
+                        <span id="btn-text-A">Phe Nguyên Đơn</span>
+                        <span class="btn-subtitle" id="btn-sub-A">Ủng hộ Startup & DN nhỏ</span>
+                    </button>
+                    
+                    <button id="btn-vote-B" class="vote-btn vote-btn-defendant" onclick="submitVote('B')">
+                        <span id="btn-text-B">Phe Bị Đơn</span>
+                        <span class="btn-subtitle" id="btn-sub-B">Ủng hộ Tập đoàn Lớn</span>
+                    </button>
+                </div>
+                <p class="text-center" style="font-size: 0.8rem; color: #5A5A5A; font-family: var(--font-serif); font-style: italic; margin-top: 16px;">
+                    Hội đồng Bồi thẩm lưu ý: Chỉ được phép vote một lần duy nhất ở mỗi vụ án.
+                </p>
+            </div>
+
+            <!-- Voted Acknowledged View -->
+            <div id="voted-view" style="display: none; text-align: center;">
+                <h3 class="status-title">Đã Ghi Nhận Biểu Quyết!</h3>
+                <p class="status-desc" style="margin-top: 8px;">Cảm ơn bạn đã đóng góp tiếng nói của mình. Hãy theo dõi màn hình chiếu chính để xem kết quả chung cuộc và phán quyết của tòa.</p>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div style="text-align: center; font-size: 0.75rem; color: #5A5A5A; border-top: 1px solid rgba(92, 64, 51, 0.15); padding-top: 12px; margin-top: 20px; font-family: var(--font-serif);">
+            Đại học Kinh tế - Luật • Phiên tòa giả định MLN
+        </div>
+
+    </div>
+
+    <script>
+        const supabaseUrl = "{{ supabase_url }}";
+        const supabaseKey = "{{ supabase_key }}";
+        
+        let supabaseClient = null;
+        let isSupabaseMode = false;
+        let realtimeChannel = null;
+        let heartbeatInterval = null;
+
+        if (supabaseUrl && supabaseKey) {
+            try {
+                supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+                isSupabaseMode = true;
+                console.log("Supabase Realtime Mode enabled!");
+            } catch (err) {
+                console.error("Failed to initialize Supabase client:", err);
+            }
+        }
+
+        let voterId = localStorage.getItem("voter_id");
+        let nickname = localStorage.getItem("voter_nickname");
+        let gameState = {};
+        
+        if (!voterId) {
+            voterId = 'voter-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+            localStorage.setItem("voter_id", voterId);
+        }
+
+        window.onload = function() {
+            if (nickname) {
+                document.getElementById("voter-name-tag").innerText = nickname;
+                document.getElementById("registration-view").style.display = "none";
+                document.getElementById("waiting-view").style.display = "block";
+                
+                initConnection();
+            }
+        };
+
+        function registerNickname() {
+            const input = document.getElementById("voter-nickname");
+            let name = input.value.trim();
+            if (!name) {
+                name = "Bồi thẩm bí ẩn " + Math.floor(100 + Math.random() * 900);
+            }
+            
+            nickname = name;
+            localStorage.setItem("voter_nickname", nickname);
+            document.getElementById("voter-name-tag").innerText = nickname;
+            
+            document.getElementById("registration-view").style.display = "none";
+            document.getElementById("waiting-view").style.display = "block";
+            
+            initConnection();
+        }
+
+        function initConnection() {
+            if (isSupabaseMode) {
+                realtimeChannel = supabaseClient.channel('courtroom', {
+                    config: {
+                        broadcast: { self: false, ack: false }
+                    }
+                });
+
+                realtimeChannel
+                    .on('broadcast', { event: 'state_update' }, (payload) => {
+                        console.log("State update received:", payload.payload);
+                        gameState = payload.payload;
+                        gameState.has_voted = gameState.voted_members && gameState.voted_members.includes(voterId);
+                        updateClientUI();
+                    })
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            console.log("Connected to Supabase Realtime successfully!");
+                            // Request initial state
+                            realtimeChannel.send({
+                                type: 'broadcast',
+                                event: 'request_state',
+                                payload: { voter_id: voterId }
+                            });
+                            // Start heartbeat
+                            startHeartbeat();
+                        }
+                    });
+            } else {
+                setInterval(pollState, 1000);
+                pollState();
+            }
+        }
+
+        function startHeartbeat() {
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            heartbeatInterval = setInterval(() => {
+                if (realtimeChannel) {
+                    realtimeChannel.send({
+                        type: 'broadcast',
+                        event: 'heartbeat',
+                        payload: { voter_id: voterId }
+                    });
+                }
+            }, 3000);
+        }
+
+        async function submitVote(option) {
+            const btnA = document.getElementById("btn-vote-A");
+            const btnB = document.getElementById("btn-vote-B");
+            
+            btnA.disabled = true;
+            btnB.disabled = true;
+            
+            const activeBtn = option === 'A' ? btnA : btnB;
+            activeBtn.classList.add("vote-btn-active");
+            
+            if (isSupabaseMode) {
+                try {
+                    realtimeChannel.send({
+                        type: 'broadcast',
+                        event: 'vote_cast',
+                        payload: { voter_id: voterId, option: option }
+                    });
+                    
+                    document.getElementById("voting-view").style.display = "none";
+                    document.getElementById("voted-view").style.display = "block";
+                } catch (e) {
+                    console.error("Submit vote error via Supabase:", e);
+                    alert("Không thể gửi vote qua WebSocket. Đang thử lại...");
+                    btnA.disabled = false;
+                    btnB.disabled = false;
+                }
+            } else {
+                try {
+                    const response = await fetch('/api/vote', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ voter_id: voterId, option: option })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        document.getElementById("voting-view").style.display = "none";
+                        document.getElementById("voted-view").style.display = "block";
+                    } else {
+                        alert("Lỗi: " + result.error);
+                        btnA.disabled = false;
+                        btnB.disabled = false;
+                    }
+                } catch (err) {
+                    console.error("Submit vote error:", err);
+                    alert("Không thể kết nối đến máy chủ. Vui lòng thử lại.");
+                    btnA.disabled = false;
+                    btnB.disabled = false;
+                }
+            }
+        }
+
+        async function pollState() {
+            if (!voterId) return;
+            
+            try {
+                const response = await fetch(`/api/state?voter_id=${voterId}`);
+                const data = await response.json();
+                gameState = data;
+                
+                updateClientUI();
+            } catch (err) {
+                console.error("Poll state error:", err);
+                document.getElementById("waiting-title").innerText = "Mất Kết Nối";
+                document.getElementById("waiting-desc").innerText = "Không thể kết nối đến máy chủ tòa án. Kiểm tra kết nối Wi-Fi của bạn.";
+                
+                document.getElementById("registration-view").style.display = "none";
+                document.getElementById("voting-view").style.display = "none";
+                document.getElementById("voted-view").style.display = "none";
+                document.getElementById("waiting-view").style.display = "block";
+            }
+        }
+
+        function updateClientUI() {
+            const regView = document.getElementById("registration-view");
+            const waitView = document.getElementById("waiting-view");
+            const voteView = document.getElementById("voting-view");
+            const votedView = document.getElementById("voted-view");
+
+            if (!nickname) {
+                regView.style.display = "block";
+                waitView.style.display = "none";
+                voteView.style.display = "none";
+                votedView.style.display = "none";
+                return;
+            }
+
+            regView.style.display = "none";
+
+            const c = gameState.current_case;
+            const p = gameState.phase;
+
+            if (c === 0) {
+                waitView.style.display = "block";
+                voteView.style.display = "none";
+                votedView.style.display = "none";
+                document.getElementById("waiting-title").innerText = "Chào Mừng Gia Nhập Lobby";
+                document.getElementById("waiting-desc").innerText = "Bồi thẩm đoàn đã đăng ký thành công. Đang đợi MC Thẩm phán công bố phổ biến luật chơi...";
+            }
+            
+            else if (c === 4) {
+                waitView.style.display = "block";
+                voteView.style.display = "none";
+                votedView.style.display = "none";
+                document.getElementById("waiting-title").innerText = "Phiên Tòa Hoàn Thành";
+                document.getElementById("waiting-desc").innerText = "Cảm ơn đóng góp bỏ phiếu tuyệt vời của bạn! Hãy theo dõi phần tổng kết lý luận Mác - Lênin trên màn hình chính.";
+            }
+            
+            else {
+                const caseTitles = {
+                    1: "Vụ án 1: Thao Túng Giá & Chuỗi Cung Ứng (Grab)",
+                    2: "Vụ án 2: Thâu Tóm M&A Công Nghệ (Google)",
+                    3: "Vụ án 3: Khởi Nghiệp Sinh Viên Cà Phê"
+                };
+                
+                const btnSubTextA = {
+                    1: "Yêu cầu điều tra Grab lạm dụng độc quyền",
+                    2: "Xem xét thương vụ chống tập trung tư bản",
+                    3: "Chuyển hướng thị trường ngách để sinh tồn"
+                };
+
+                const btnSubTextB = {
+                    1: "Ủng hộ Grab định giá tự do thị trường",
+                    2: "Ủng hộ tự do sáp nhập M&A của Google",
+                    3: "Lựa chọn đối đầu trực diện giá (Phá sản)"
+                };
+
+                if (p === "indictment") {
+                    waitView.style.display = "block";
+                    voteView.style.display = "none";
+                    votedView.style.display = "none";
+                    document.getElementById("waiting-title").innerText = "Công Bố Cáo Trạng Vụ Án " + c;
+                    document.getElementById("waiting-desc").innerText = `Đang đọc cáo trạng cho ${caseTitles[c]}. Lắng nghe chi tiết trên màn hình chiếu chính...`;
+                }
+                
+                else if (p === "debate") {
+                    waitView.style.display = "block";
+                    voteView.style.display = "none";
+                    votedView.style.display = "none";
+                    document.getElementById("waiting-title").innerText = "Đang Tranh Tụng";
+                    document.getElementById("waiting-desc").innerText = "Đại diện Nguyên đơn và Bị đơn đang phản biện tại chỗ. Hãy chú ý lắng nghe để đưa ra quyết định sáng suốt.";
+                }
+                
+                else if (p === "voting") {
+                    const clientVoted = gameState.has_voted;
+                    
+                    if (clientVoted) {
+                        waitView.style.display = "none";
+                        voteView.style.display = "none";
+                        votedView.style.display = "block";
+                    } else {
+                        waitView.style.display = "none";
+                        votedView.style.display = "none";
+                        voteView.style.display = "block";
+                        
+                        document.getElementById("voting-case-title").innerText = caseTitles[c];
+                        document.getElementById("voting-timer").innerText = gameState.timer_remaining;
+                        
+                        document.getElementById("btn-sub-A").innerText = btnSubTextA[c];
+                        document.getElementById("btn-sub-B").innerText = btnSubTextB[c];
+                        
+                        document.getElementById("btn-vote-A").disabled = false;
+                        document.getElementById("btn-vote-B").disabled = false;
+                    }
+                }
+                
+                else if (p === "result") {
+                    waitView.style.display = "block";
+                    voteView.style.display = "none";
+                    votedView.style.display = "none";
+                    
+                    const systemOutcome = gameState.decisions[c] === 'A' ? "Nguyên Đơn thắng" : "Bị Đơn thắng";
+                    
+                    document.getElementById("waiting-title").innerText = "Tòa Tuyên Án";
+                    document.getElementById("waiting-desc").innerText = `Vụ án ${c} đã được tuyên án: Phán quyết nghiêng về phía ${systemOutcome}! Xem chỉ số thị trường thay đổi ở màn hình chiếu chính.`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

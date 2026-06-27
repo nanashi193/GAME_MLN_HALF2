@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiên Tòa Giả Định Kinh Tế Chính Trị - Thẩm Phán</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Load Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Load QRCode.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Load Supabase JS Client library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <!-- Left Side Logo Box -->
+            <div class="header-box header-logo-box">
+                <div class="logo-text">
+                    <span class="logo-sub">PHIÊN TÒA GIẢ ĐỊNH</span>
+                    <h1>KINH TẾ CHÍNH TRỊ</h1>
+                    <p>BẢN CHẤT CỦA ĐỘC QUYỀN THEO LÝ LUẬN MÁC - LÊNIN</p>
+                </div>
+            </div>
+
+            <div class="header-box header-bench-box">
+            </div>
+
+            <!-- Right Side Jury Connection Box -->
+            <div class="header-box header-jury-box">
+                <div class="header-jury-card">
+                    Bồi thẩm đoàn: <strong id="jury-count">0</strong> online
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <div class="main-grid">
+
+            <!-- LEFT COLUMN: INDICATOR DASHBOARD -->
+            <div class="indicators-sidebar">
+                <h3 class="court-side-title">HỒ SƠ VỤ ÁN</h3>
+
+                <!-- Corporation Market Share -->
+                <div class="glass-panel indicator-card corp">
+                    <div class="indicator-header">
+                        <span class="indicator-title">Thị phần Tập đoàn</span>
+                    </div>
+                    <div class="indicator-value"><span id="val-market-share">75</span>%</div>
+                    <div class="indicator-bar-container">
+                        <div id="bar-market-share" class="indicator-bar" style="width: 75%;"></div>
+                    </div>
+                    <div class="indicator-desc">
+                        Cạnh tranh chủ yếu giữa các tập đoàn lớn sở hữu lợi thế độc quyền. Grab, Google hay chuỗi lớn
+                        ban đầu chiếm hầu hết thị phần.
+                    </div>
+                </div>
+
+                <!-- Startup Fund -->
+                <div class="glass-panel indicator-card startup">
+                    <div class="indicator-header">
+                        <span class="indicator-title">Quỹ vốn Startup</span>
+                    </div>
+                    <div class="indicator-value"><span id="val-startup-fund">5,000</span> xu</div>
+                    <div class="indicator-bar-container">
+                        <div id="bar-startup-fund" class="indicator-bar" style="width: 50%;"></div>
+                    </div>
+                    <div class="indicator-desc">
+                        Số vốn ban đầu tượng trưng của phe doanh nghiệp nhỏ / sinh viên để duy trì kinh doanh trên thị
+                        trường khốc liệt.
+                    </div>
+                </div>
+
+                <!-- Social Benefit -->
+                <div class="glass-panel indicator-card social">
+                    <div class="indicator-header">
+                        <span class="indicator-title">Quyền lợi Xã hội</span>
+                    </div>
+                    <div class="indicator-value"><span id="val-social-benefit">50</span>/100</div>
+                    <div class="indicator-bar-container">
+                        <div id="bar-social-benefit" class="indicator-bar" style="width: 50%;"></div>
+                    </div>
+                    <div class="indicator-desc">
+                        Mức an toàn bình quân của người dân. Giảm tức là người dân đang bị bóc lột, tăng chứng tỏ môi
+                        trường cạnh tranh lành mạnh.
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER COLUMN: COURTROOM SCREEN -->
+            <div class="courtroom-stage glass-panel">
+                <div class="stage-content">
+                    <div id="court-screen" class="court-screen">
+                        <!-- Dynamic Content Loaded Here by JS -->
+                    </div>
+                </div>
+
+                <!-- MC CONTROLLER PANEL (At bottom of stage) -->
+                <div class="control-bar">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-danger" onclick="controlReset()">Khởi tạo lại phiên tòa</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;" id="presenter-controls">
+                        <!-- Dynamic controls depending on phase -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: QR JOIN-IN & VOTE PANEL -->
+            <div class="jury-sidebar">
+                <!-- QR Join-in -->
+                <div class="wood-frame-container" id="qr-panel" style="margin-bottom: 24px;">
+                    <div class="glass-panel qr-card"
+                        style="margin: 0; background: var(--bg-card); color: var(--text-dark);">
+                        <h3
+                            style="font-family: var(--font-baskerville); font-size: 1.15rem; font-weight: 700; color: #442f25; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; text-align: center;">
+                            HỘI ĐỒNG BỒI THẨM</h3>
+                        <div style="font-size: 0.8rem; color: #292828; margin-bottom: 16px; text-align: center;">Quét mã
+                            QR
+                            để tham gia bình chọn phán quyết</div>
+                        <div class="qr-placeholder" id="qrcode" style="margin: 0 auto 16px auto;"></div>
+                        <div
+                            style="font-size: 0.85rem; color: #292828; font-family: var(--font-serif); text-align: center;">
+                            {{ jury_url }}</div>
+                    </div>
+                </div>
+
+                <!-- Live Voting Progress -->
+                <div class="wood-frame-container" id="voting-panel"
+                    style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="glass-panel"
+                        style="margin: 0; flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-card); color: var(--text-dark); padding: 24px; box-sizing: border-box; width: 100%;">
+                        <h3
+                            style="font-family: var(--font-baskerville); font-size: 1.15rem; font-weight: 700; color: #442f25; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid rgba(92,64,51,0.15); padding-bottom: 8px; letter-spacing: 1px; text-align: center;">
+                            KẾT QUẢ BIỂU QUYẾT</h3>
+
+                        <div class="jury-counter"
+                            style="background: var(--bg-inner-parchment); border: 1px solid rgba(92, 64, 51, 0.15); border-radius: 4px; padding: 16px; margin-bottom: 20px; text-align: center;">
+                            <div
+                                style="font-size: 0.8rem; text-transform: uppercase; color: #292828; font-weight: 700; letter-spacing: 1px;">
+                                Đã biểu quyết</div>
+                            <div class="jury-count-val"
+                                style="color: #442f25; font-family: var(--font-baskerville); font-size: 2.2rem; font-weight: 700; margin-top: 6px;">
+                                <span id="votes-tally">0</span> / <span id="voters-total">0</span>
+                            </div>
+                        </div>
+
+                        <div class="vote-display" id="live-votes-bars"
+                            style="display: none; display: flex; flex-direction: column; gap: 20px;">
+                            <!-- Option A -->
+                            <div>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                                    <span class="text-plaintiff" id="vote-name-A"
+                                        style="font-weight: bold; color: var(--plaintiff);">Phe Nguyên Đơn</span>
+                                    <span id="vote-count-A" style="font-weight: bold; color: var(--text-dark);">0 phiếu
+                                        (0%)</span>
+                                </div>
+                                <div class="vote-bar-wrapper"
+                                    style="background: var(--bg-inner-parchment); border: 1px solid var(--border-legal);">
+                                    <div class="vote-bar-fill plaintiff" id="vote-bar-A" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Option B -->
+                            <div>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                                    <span class="text-defendant" id="vote-name-B"
+                                        style="font-weight: bold; color: var(--defendant);">Phe Bị Đơn</span>
+                                    <span id="vote-count-B" style="font-weight: bold; color: var(--text-dark);">0 phiếu
+                                        (0%)</span>
+                                </div>
+                                <div class="vote-bar-wrapper"
+                                    style="background: var(--bg-inner-parchment); border: 1px solid var(--border-legal);">
+                                    <div class="vote-bar-fill defendant" id="vote-bar-B" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="no-vote-message"
+                            style="margin: auto 0; text-align: center; color: #292828; font-size: 0.95rem; font-family: var(--font-serif); width: 100%;">
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin: 16px 0;">— ♦
+                                —
+                            </div>
+                            Chưa đến thời gian biểu quyết.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- AUDIO SOUNDS FOR COURTROOM AMBIANCE -->
+    <audio id="gavel-sound" src="https://assets.mixkit.co/active_storage/sfx/2190/2190-84.wav" preload="auto"></audio>
+    <audio id="timer-sound" src="https://assets.mixkit.co/active_storage/sfx/2569/2569-84.wav" preload="auto"></audio>
+
+    <script>
+        // Game Narrative Content Data
+        const cases = {
+            1: {
+                title: "VỤ ÁN 1: THAO TÚNG GIÁ CẢ & KIỂM SOÁT CHUỖI CUNG ỨNG",
+                indictment: `<strong>Thẩm phán:</strong><br>
+                "Kính mời toàn thể Hội đồng Bồi thẩm ổn định. Phiên tòa kinh tế chính trị xin được bắt đầu với vụ án thứ nhất.<br><br>
+                Nguyên đơn là nhóm Startup và các doanh nghiệp nhỏ trong lĩnh vực gọi xe công nghệ. Bị đơn là Tập đoàn Grab.<br><br>
+                Theo cáo trạng, sau khi nhiều đối thủ rút khỏi thị trường, Grab dần chiếm vị trí thống lĩnh. Do nắm giữ lượng lớn tài xế, khách hàng và hệ thống nền tảng, Grab đã tăng mức chiết khấu đối với tài xế, tăng phí nền tảng đối với nhà hàng và áp dụng giá cước rất cao vào các khung giờ cao điểm hoặc khi thời tiết xấu. Nguyên đơn cho rằng đây là hành vi lợi dụng vị thế thống lĩnh để thao túng giá cả, kiểm soát chuỗi cung ứng và thu lợi nhuận độc quyền."`,
+                plaintiffArg: `<strong>Gợi ý tranh luận:</strong>
+                <ul style="list-style-type: none; padding-left: 0; line-height: 1.8; margin-top: 8px;">
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Giá cước tăng bất thường</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Chiết khấu tài xế quá cao</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Phí nền tảng tăng liên tục</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Người tiêu dùng chịu thiệt</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Lợi dụng vị thế thống lĩnh</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Cạnh tranh thiếu công bằng</li>
+                </ul>`,
+                defendantArg: `<strong>Gợi ý tranh luận:</strong>
+                <ul style="list-style-type: none; padding-left: 0; line-height: 1.8; margin-top: 8px;">
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Cơ chế cung cầu</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Chi phí vận hành lớn</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Đầu tư công nghệ</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Nâng cao chất lượng dịch vụ</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Người dùng được lựa chọn</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Không vi phạm pháp luật</li>
+                </ul>`,
+                optionNameA: "Nguyên Đơn (Startup)",
+                optionNameB: "Bị Đơn (Grab)",
+                resultA: {
+                    title: "PHÁN QUYẾT: ĐỒNG Ý ĐIỀU TRA LẠM DỤNG THỐNG LĨNH THỊ TRƯỜNG",
+                    desc: "Hội đồng Bồi thẩm yêu cầu cơ quan quản lý tiến hành điều tra hành vi độc quyền của Grab.",
+                    effect: "Thị phần Grab giảm 5%. Startup tăng 500 xu. Quyền lợi xã hội tăng 10 điểm.",
+                    mcConclusion: "<strong></strong> Kết quả biểu quyết cho thấy đa số đồng tình rằng khi doanh nghiệp nắm giữ vị trí độc quyền, họ có khả năng áp đặt mức giá theo hướng có lợi cho mình. Theo lý luận Kinh tế chính trị Mác – Lênin, đây là biểu hiện của <strong>giá cả độc quyền và lợi nhuận độc quyền</strong>, trong đó doanh nghiệp độc quyền có thể bán với giá cao hơn hoặc mua với giá thấp hơn nhằm thu được lợi nhuận vượt mức."
+                },
+                resultB: {
+                    title: "PHÁN QUYẾT: CHẤP NHẬN LẬP LUẬN CỦA TẬP ĐOÀN GRAB",
+                    desc: "Hội đồng Bồi thẩm chấp nhận rằng giá cước được quyết định bởi cung cầu thị trường tự do.",
+                    effect: "Thị phần Grab tăng 5%. Startup mất 300 xu. Quyền lợi xã hội giảm 10 điểm.",
+                    mcConclusion: "<strong></strong> Khi Nhà nước không có biện pháp điều tiết, doanh nghiệp có vị thế độc quyền sẽ ngày càng mở rộng sức mạnh thị trường. Điều này phản ánh đúng quy luật mà Mác – Lênin chỉ ra: <strong>cạnh tranh trong giai đoạn độc quyền vẫn tồn tại, song lợi thế ngày càng nghiêng về các tập đoàn lớn</strong>."
+                }
+            },
+            2: {
+                title: "VỤ ÁN 2: THÂU TÓM THỊ TRƯỜNG THÔNG QUA M&A",
+                indictment: `<strong></strong><br>
+                Một Startup trí tuệ nhân tạo vừa phát triển thành công một công nghệ mới và bắt đầu thu hút rất nhiều người dùng. Ngay sau đó, Google đưa ra lời đề nghị mua lại Startup với giá rất cao. Đồng thời, Google tuyên bố rằng nếu Startup từ chối, tập đoàn sẽ tự phát triển một sản phẩm tương tự và tích hợp miễn phí vào hệ sinh thái khổng lồ của mình.<br><br>
+                Startup cho rằng đây là hành động chèn ép, khiến họ không còn khả năng cạnh tranh độc lập và buộc phải bán mình."`,
+                plaintiffArg: `<strong>Gợi ý tranh luận:</strong>
+                <ul style="list-style-type: none; padding-left: 0; line-height: 1.8; margin-top: 8px;">
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Mất cơ hội cạnh tranh</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Chênh lệch nguồn lực</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Bị ép phải bán</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Thu hẹp đổi mới sáng tạo</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Thị trường thiếu công bằng</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Tăng sức mạnh độc quyền</li>
+                </ul>`,
+                defendantArg: `<strong>Gợi ý tranh luận:</strong>
+                <ul style="list-style-type: none; padding-left: 0; line-height: 1.8; margin-top: 8px;">
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>M&A là hợp pháp</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Hai bên tự nguyện</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Thúc đẩy đổi mới</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Mở rộng hệ sinh thái</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Tăng hiệu quả đầu tư</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Người dùng hưởng lợi</li>
+                </ul>`,
+                optionNameA: "Nguyên Đơn (AI Startup)",
+                optionNameB: "Bị Đơn (Google)",
+                resultA: {
+                    title: "PHÁN QUYẾT: BÁC BỎ THƯƠNG VỤ - TIẾN HÀNH ĐIỀU TRA M&A",
+                    desc: "Cơ quan quản lý cạnh tranh quyết định điều tra chống độc quyền thương vụ mua lại này để bảo vệ đổi mới sáng tạo độc lập.",
+                    effect: "Google giảm 10% thị phần. Startup tăng 10% thị phần. Quyền lợi xã hội tăng 5 điểm.",
+                    mcConclusion: "<strong></strong> Theo Mác – Lênin, đây là biểu hiện rõ nét của <strong>tập trung tư bản</strong>, tức là việc hợp nhất nhiều tư bản nhỏ thành một tư bản lớn hơn. Quá trình này làm xuất hiện các tổ chức độc quyền ngày càng khổng lồ, tạo ra ưu thế áp đảo và triệt tiêu động lực cạnh tranh của các doanh nghiệp độc lập."
+                },
+                resultB: {
+                    title: "PHÁN QUYẾT: THÔNG QUA THƯƠNG VỤ M&A",
+                    desc: "Hội đồng Bồi thẩm phê duyệt thương vụ sáp nhập. Startup AI chính thức thuộc về Google.",
+                    effect: "Google tăng 15% thị phần. Startup bị mua lại (mất 700 xu). Quyền lợi xã hội giảm 5 điểm.",
+                    mcConclusion: "<strong></strong> Qua tình huống này có thể thấy <strong>cạnh tranh không biến mất khi xuất hiện độc quyền</strong> mà chuyển hóa thành một dạng thức gay gắt hơn - cạnh tranh giữa các tập đoàn lớn để thâu tóm các công nghệ mới nổi, từ đó tiếp tục bành trướng quyền lực thị trường."
+                }
+            },
+            3: {
+                title: "VỤ ÁN 3: CÓ NÊN ĐỐI ĐẦU VỚI TẬP ĐOÀN LỚN?",
+                indictment: `<strong></strong><br>
+                Một nhóm sinh viên quyết định khởi nghiệp bằng cách mở một quán cà phê nhỏ gần trường đại học, phục vụ học nhóm với giá cả hợp lý. Ngay sau đó, một chuỗi cà phê lớn mở đối diện, tung khuyến mãi giảm giá cực sâu, quảng cáo rầm rộ để thu hút khách.<br><br>
+                Sau vài tháng, quán cà phê sinh viên đứng trước hai lựa chọn: Một là chuyển sang thị trường ngách (mở xuyên đêm, boardgame, học nhóm), hai là tiếp tục cuộc chiến hạ giá đối đầu trực diện để giữ khách.`,
+                plaintiffArg: `<strong>Gợi ý tranh luận:</strong>
+                <ul style="list-style-type: none; padding-left: 0; line-height: 1.8; margin-top: 8px;">
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Không đủ vốn</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Không thể cạnh tranh quảng cáo</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Khai thác thị trường ngách</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Khác biệt dịch vụ</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Linh hoạt, sáng tạo</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--plaintiff);">•</span>Phù hợp sinh viên</li>
+                </ul>`,
+                defendantArg: `<strong>Gợi ý tranh luận:</strong>
+                <ul style="list-style-type: none; padding-left: 0; line-height: 1.8; margin-top: 8px;">
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Cạnh tranh hợp pháp</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Thương hiệu mạnh</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Chất lượng ổn định</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Đầu tư bài bản</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Người tiêu dùng quyết định</li>
+                    <li style="position: relative; padding-left: 16px;"><span style="position: absolute; left: 0; color: var(--defendant);">•</span>Không cản trở Startup</li>
+                </ul>`,
+                optionNameA: "Nguyên Đơn (Startup chuyển ngách)",
+                optionNameB: "Bị Đơn (Đối đầu trực diện về giá)",
+                resultA: {
+                    title: "STARTUP SỐNG SÓT VÀ PHÁT TRIỂN THÀNH CÔNG",
+                    desc: "Startup đã chiếm lĩnh thành công thị trường ngách, tạo lập mô hình kinh doanh bền vững.",
+                    effect: "Startup tăng 1.000 xu. Quyền lợi xã hội tăng 15 điểm. Tạo dựng được phân khúc riêng biệt.",
+                    mcConclusion: "<strong></strong> Đây chính là bài học thực tiễn đắt giá. Trong môi trường cạnh tranh độc quyền, doanh nghiệp nhỏ và sinh viên <strong>không nên đối đầu trực diện bằng vốn hay quy mô</strong> với các tập đoàn lớn. Thay vào đó, cần tìm kiếm thị trường ngách, tận dụng sự sáng tạo và tính linh động để tạo ra lợi thế cạnh tranh riêng biệt."
+                },
+                resultB: {
+                    title: "STARTUP PHÁ SẢN HOÀN TOÀN",
+                    desc: "Startup cạn kiệt vốn do chạy đua giảm giá và phải đóng cửa.",
+                    effect: "Startup mất toàn bộ số vốn còn lại (0 xu). Tập đoàn tăng thêm thị phần. Quyền lợi xã hội giảm 15 điểm.",
+                    mcConclusion: "<strong></strong> Kết quả buồn này phản ánh đúng thực tế khốc liệt mà doanh nghiệp nhỏ đối mặt. Nó minh chứng cho nhận định của Kinh tế chính trị Mác – Lênin: <strong>sự tích tụ và tập trung tư bản tất yếu dẫn đến sự bất bình đẳng sâu sắc về cơ hội kinh doanh</strong>, khiến kẻ yếu thế dễ dàng bị đè bẹp nếu chọn sai chiến lược đối đầu."
+                }
+            }
+        };
+
+        // Supabase configuration
+        const supabaseUrl = "{{ supabase_url }}";
+        const supabaseKey = "{{ supabase_key }}";
+        
+        let supabaseClient = null;
+        let isSupabaseMode = false;
+        let realtimeChannel = null;
+
+        if (supabaseUrl && supabaseKey) {
+            try {
+                supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+                isSupabaseMode = true;
+                console.log("Supabase Realtime Mode enabled!");
+            } catch (err) {
+                console.error("Failed to initialize Supabase client:", err);
+            }
+        }
+
+        const defaultState = {
+            current_case: 0,
+            phase: "lobby",
+            indicators: {
+                corp_market_share: 75,
+                startup_fund: 5000,
+                social_benefit: 50
+            },
+            timer_duration: 0,
+            timer_end: 0,
+            timer_remaining: 0,
+            timer_active: false,
+            votes: { A: 0, B: 0 },
+            votes_pct: { A: 0, B: 0 },
+            total_votes: 0,
+            decisions: { 1: null, 2: null, 3: null },
+            voted_members: [], // voter_ids who voted in current case
+            jury_count: 0,
+            jury_members: {} // { voter_id: timestamp }
+        };
+
+        function cleanInactiveJuryMembers(gameStateObj) {
+            if (!gameStateObj.jury_members) gameStateObj.jury_members = {};
+            const now = Date.now();
+            const inactiveLimit = 6000; // 6 seconds
+            const activeVoterIds = Object.keys(gameStateObj.jury_members).filter(vid => {
+                return (now - gameStateObj.jury_members[vid]) <= inactiveLimit;
+            });
+            const newJuryMembers = {};
+            activeVoterIds.forEach(vid => {
+                newJuryMembers[vid] = gameStateObj.jury_members[vid];
+            });
+            gameStateObj.jury_members = newJuryMembers;
+            gameStateObj.jury_count = activeVoterIds.length;
+        }
+
+        function getInitialState() {
+            if (isSupabaseMode) {
+                const saved = localStorage.getItem("presenter_game_state");
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        cleanInactiveJuryMembers(parsed);
+                        return parsed;
+                    } catch (e) {
+                        return JSON.parse(JSON.stringify(defaultState));
+                    }
+                }
+            }
+            return JSON.parse(JSON.stringify(defaultState));
+        }
+
+        let state = getInitialState();
+
+        function saveStateLocal() {
+            localStorage.setItem("presenter_game_state", JSON.stringify(state));
+        }
+
+        function broadcastState() {
+            if (realtimeChannel) {
+                realtimeChannel.send({
+                    type: 'broadcast',
+                    event: 'state_update',
+                    payload: state
+                });
+            }
+        }
+
+        // Local Timer Tick Interval
+        let timerInterval = null;
+        function runTimerLocalTick() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (state.timer_active) {
+                    const remaining = Math.max(0, Math.round((state.timer_end - Date.now()) / 1000));
+                    if (remaining !== state.timer_remaining) {
+                        state.timer_remaining = remaining;
+                        if (remaining <= 0) {
+                            state.timer_active = false;
+                            clearInterval(timerInterval);
+                        }
+                        updateUI();
+                        if (isSupabaseMode) {
+                            saveStateLocal();
+                            broadcastState();
+                        }
+                    }
+                } else {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        function startTimerLocal(duration) {
+            state.timer_active = true;
+            state.timer_duration = duration;
+            state.timer_end = Date.now() + (duration * 1000);
+            state.timer_remaining = duration;
+            updateUI();
+            runTimerLocalTick();
+            if (isSupabaseMode) {
+                saveStateLocal();
+                broadcastState();
+            }
+        }
+
+        function stopTimerLocal() {
+            state.timer_active = false;
+            if (timerInterval) clearInterval(timerInterval);
+            updateUI();
+            if (isSupabaseMode) {
+                saveStateLocal();
+                broadcastState();
+            }
+        }
+
+        if (isSupabaseMode) {
+            realtimeChannel = supabaseClient.channel('courtroom', {
+                config: {
+                    broadcast: { self: false, ack: false }
+                }
+            });
+
+            realtimeChannel
+                .on('broadcast', { event: 'request_state' }, (payload) => {
+                    const voterId = payload.payload ? payload.payload.voter_id : null;
+                    console.log("Jury member requested state:", voterId);
+                    
+                    if (voterId) {
+                        state.jury_members[voterId] = Date.now();
+                        cleanInactiveJuryMembers(state);
+                        saveStateLocal();
+                        updateUI();
+                    }
+                    broadcastState();
+                })
+                .on('broadcast', { event: 'vote_cast' }, (payload) => {
+                    const { voter_id, option } = payload.payload;
+                    console.log("Vote received:", voter_id, option);
+                    
+                    if (state.phase === "voting" && voter_id && (option === 'A' || option === 'B')) {
+                        if (!state.voted_members) state.voted_members = [];
+                        
+                        if (!state.voted_members.includes(voter_id)) {
+                            state.votes[option] = (state.votes[option] || 0) + 1;
+                            state.voted_members.push(voter_id);
+                            
+                            const total = state.votes.A + state.votes.B;
+                            state.total_votes = total;
+                            if (total > 0) {
+                                state.votes_pct.A = Math.round((state.votes.A / total) * 100);
+                                state.votes_pct.B = Math.round((state.votes.B / total) * 100);
+                            }
+                            
+                            saveStateLocal();
+                            updateUI();
+                            broadcastState();
+                        }
+                    }
+                })
+                .on('broadcast', { event: 'heartbeat' }, (payload) => {
+                    const voterId = payload.payload ? payload.payload.voter_id : null;
+                    if (voterId) {
+                        state.jury_members[voterId] = Date.now();
+                        const prevCount = state.jury_count;
+                        cleanInactiveJuryMembers(state);
+                        if (prevCount !== state.jury_count) {
+                            saveStateLocal();
+                            updateUI();
+                            broadcastState();
+                        }
+                    }
+                })
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        console.log("Joined Realtime Channel successfully!");
+                        cleanInactiveJuryMembers(state);
+                        updateUI();
+                        broadcastState();
+                    }
+                });
+
+            // Clean up inactive users every 3 seconds
+            setInterval(() => {
+                const prevCount = state.jury_count;
+                cleanInactiveJuryMembers(state);
+                if (prevCount !== state.jury_count) {
+                    saveStateLocal();
+                    updateUI();
+                    broadcastState();
+                }
+            }, 3000);
+
+            if (state.timer_active) {
+                runTimerLocalTick();
+            }
+        }
+
+        // Generate QR code on page load
+        new QRCode(document.getElementById("qrcode"), {
+            text: "{{ jury_url }}",
+            width: 160,
+            height: 160,
+            colorDark: "#2b2b2b",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Play gavel sound effect
+        function playGavel() {
+            const sound = document.getElementById("gavel-sound");
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Sound play error: " + e));
+        }
+
+        // Play ticking timer sound
+        function playTimerSound() {
+            const sound = document.getElementById("timer-sound");
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Sound play error: " + e));
+        }
+
+        // Fetch state from server
+        async function fetchState() {
+            try {
+                const response = await fetch('/api/state');
+                const data = await response.json();
+
+                // Check if phase transitioned to handle sounds
+                if (state.phase !== data.phase) {
+                    if (data.phase === "voting" || data.phase === "result") {
+                        playGavel();
+                    }
+                }
+
+                state = data;
+                updateUI();
+            } catch (err) {
+                console.error("Error fetching state:", err);
+            }
+        }
+
+        // Update indicators, screen content, controller HUD based on state
+        function updateUI() {
+            // 1. Update Indicators in Sidebar
+            const ms = state.indicators.corp_market_share;
+            const fund = state.indicators.startup_fund;
+            const social = state.indicators.social_benefit;
+
+            document.getElementById("val-market-share").innerText = ms;
+            document.getElementById("bar-market-share").style.width = ms + "%";
+
+            document.getElementById("val-startup-fund").innerText = fund.toLocaleString();
+            // Scale 5,000 as 50%, max 10,000 for representation
+            const fundPct = Math.min(100, (fund / 10000) * 100);
+            document.getElementById("bar-startup-fund").style.width = fundPct + "%";
+
+            document.getElementById("val-social-benefit").innerText = social;
+            document.getElementById("bar-social-benefit").style.width = social + "%";
+
+            // Header jury online
+            document.getElementById("jury-count").innerText = state.jury_count;
+
+            // 2. Render Live Voting Sidebar
+            document.getElementById("votes-tally").innerText = state.total_votes;
+            document.getElementById("voters-total").innerText = state.jury_count;
+
+            if (state.phase === "voting" || state.phase === "result") {
+                document.getElementById("no-vote-message").style.display = "none";
+                document.getElementById("live-votes-bars").style.display = "flex";
+
+                // Update text options labels
+                const caseData = cases[state.current_case];
+                if (caseData) {
+                    document.getElementById("vote-name-A").innerText = caseData.optionNameA;
+                    document.getElementById("vote-name-B").innerText = caseData.optionNameB;
+                }
+
+                // Update bars and percentages
+                document.getElementById("vote-count-A").innerText = `${state.votes.A} phiếu (${state.votes_pct.A}%)`;
+                document.getElementById("vote-bar-A").style.width = state.votes_pct.A + "%";
+                document.getElementById("vote-count-B").innerText = `${state.votes.B} phiếu (${state.votes_pct.B}%)`;
+                document.getElementById("vote-bar-B").style.width = state.votes_pct.B + "%";
+            } else {
+                document.getElementById("no-vote-message").style.display = "block";
+                document.getElementById("live-votes-bars").style.display = "none";
+            }
+
+            // 3. Render Center Screen based on case/phase
+            renderCenterScreen();
+
+            // 4. Render Admin controls at bottom
+            renderControls();
+        }
+
+        function renderCenterScreen() {
+            const screen = document.getElementById("court-screen");
+
+            // LOBBY (Lớp chuẩn bị)
+            if (state.current_case === 0) {
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">VỤ ÁN</span>
+                            <h2 class="stage-title" style="font-size: 2.2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">PHỔ BIẾN LUẬT CHƠI</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                        </div>
+                        
+                        <div style="background: var(--bg-inner-parchment); border: 1px solid rgba(92, 64, 51, 0.15); border-radius: 4px; padding: 20px; line-height: 1.7; font-size: 1.1rem; color: var(--text-dark); margin-bottom: 24px;">
+                            Tụi mình sẽ mở <strong>Phiên Tòa Giả Định Kinh Tế Chính Trị</strong> để xét xử <strong>3 Vụ án</strong> thực tế nhằm làm rõ bản chất của Độc quyền theo lý luận Mác - Lênin.
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="font-family: var(--font-baskerville); font-size: 0.95rem; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-legal); padding-bottom: 8px; margin-bottom: 16px;">QUY TRÌNH PHIÊN TÒA</h4>
+                            <ul style="list-style-type: none; padding-left: 0; line-height: 1.9; font-size: 1.05rem; color: var(--text-dark);">
+                                <li><strong>Bước 1:</strong> Tòa công bố cáo trạng trên màn hình chiếu.</li>
+                                <li><strong>Bước 2:</strong> Nguyên đơn và Bị đơn có <strong>1 phút</strong> tranh tụng tại chỗ.</li>
+                                <li><strong>Bước 3:</strong> Hội đồng Bồi thẩm có <strong>30 giây</strong> quét QR để <strong>VOTE</strong> bên thuyết phục hơn.</li>
+                                <li><strong>Bước 4:</strong> Tòa chốt phán quyết, đúc kết học thuật và cập nhật biến động thị trường.</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--bg-inner-parchment); border: 1px solid rgba(92, 64, 51, 0.15); border-radius: 4px; padding: 16px; text-align: center; font-size: 1.05rem; color: var(--text-dark); font-weight: 700;">
+                            Hãy quét mã QR bên cạnh để gia nhập Hội Đồng Bồi Thẩm ngay!
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // WRAP-UP & CONCLUSION SLIDES (Tổng kết toàn game)
+            if (state.current_case === 4) {
+                renderWrapUpSlides(screen);
+                return;
+            }
+
+            const caseData = cases[state.current_case];
+            if (!caseData) return;
+
+            // INDICTMENT (Công bố cáo trạng)
+            if (state.phase === "indictment") {
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">CÔNG BỐ CÁO TRẠNG</span>
+                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                        </div>
+
+                        <div class="narrative-box mc-quote" style="background: var(--bg-inner-parchment); border: 1px solid rgba(92, 64, 51, 0.15); box-shadow: none;">
+                            ${caseData.indictment}
+                        </div>
+
+                        <div style="text-align: center; margin-top: 24px;">
+                            <h4 style="font-family: var(--font-baskerville); font-size: 0.95rem; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">CHUẨN BỊ TRANH TỤNG</h4>
+                            <div style="display: flex; gap: 24px; justify-content: center;">
+                                <div style="background: var(--bg-inner-parchment); border: 2px solid var(--plaintiff); border-radius: 4px; padding: 12px 24px; color: var(--plaintiff); font-weight: bold; font-family: var(--font-baskerville);">PHE NGUYÊN ĐƠN</div>
+                                <div style="background: var(--bg-inner-parchment); border: 2px solid var(--defendant); border-radius: 4px; padding: 12px 24px; color: var(--defendant); font-weight: bold; font-family: var(--font-baskerville);">PHE BỊ ĐƠN</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // DEBATE (Tranh tụng)
+            else if (state.phase === "debate") {
+                const timerClass = state.timer_active ? "active" : "";
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">TRANH TỤNG NẢY LỬA</span>
+                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                        </div>
+
+                        <div class="debate-grid">
+                            <div class="debate-card plaintiff">
+                                <h3 style="font-family: var(--font-baskerville); color: var(--plaintiff); border-bottom: 1px solid rgba(74, 107, 130, 0.2); padding-bottom: 6px; margin-bottom: 12px;">PHE NGUYÊN ĐƠN</h3>
+                                <div style="color: var(--text-dark); line-height: 1.6; text-align: left;">${caseData.plaintiffArg}</div>
+                            </div>
+                            <div class="debate-card defendant">
+                                <h3 style="font-family: var(--font-baskerville); color: var(--defendant); border-bottom: 1px solid rgba(148, 77, 77, 0.2); padding-bottom: 6px; margin-bottom: 12px;">PHE BỊ ĐƠN</h3>
+                                <div style="color: var(--text-dark); line-height: 1.6; text-align: left;">${caseData.defendantArg}</div>
+                            </div>
+                        </div>
+ 
+                        <div class="timer-container ${timerClass}" style="margin: 24px auto 12px auto; background: var(--bg-inner-parchment); border: 2px solid var(--border-legal);">
+                            <div class="timer-val" id="timer-display" style="color: var(--gold-dark);">${state.timer_remaining}</div>
+                            <div class="timer-label" style="color: var(--border-legal);">Giây còn lại</div>
+                        </div>
+                        <div class="text-center" style="color: var(--border-legal); font-size: 0.85rem; font-style: italic;">
+                            Đại diện mỗi bên có tối đa 1 phút để thuyết phục Hội đồng bồi thẩm.
+                        </div>
+                    </div>
+                `;
+            }
+
+            // VOTING (Biểu quyết)
+            else if (state.phase === "voting") {
+                const timerClass = state.timer_active ? "active voting" : "voting";
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">BỒI THẨM ĐOÀN BÌNH CHỌN</span>
+                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                        </div>
+ 
+                        <div style="text-align: center; margin-bottom: 24px; font-size: 1.25rem; color: var(--text-dark); font-weight: 600; font-family: var(--font-serif);">
+                            Bình chọn trên điện thoại của bạn ngay bây giờ!
+                        </div>
+ 
+                        <div class="timer-container ${timerClass}" style="margin: 0 auto 20px auto; background: var(--bg-inner-parchment); border: 2px solid var(--border-legal);">
+                            <div class="timer-val" id="timer-display" style="color: var(--jury);">${state.timer_remaining}</div>
+                            <div class="timer-label" style="color: var(--border-legal);">Giây bình chọn</div>
+                        </div>
+ 
+                        <div class="text-center" style="font-size: 1.25rem; color: var(--text-dark); font-family: var(--font-baskerville);">
+                            Số phiếu thu thập được: <strong style="color: var(--gold-dark); font-size: 1.8rem;">${state.total_votes}</strong>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // RESULT (Tuyên án & Kết luận MC)
+            else if (state.phase === "result") {
+                const selectedOption = state.decisions[state.current_case];
+                const outcome = selectedOption === "A" ? caseData.resultA : caseData.resultB;
+
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">TUYÊN ÁN VÀ PHÂN TÍCH</span>
+                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                        </div>
+ 
+                        <div class="judgment-card" style="border: 2px solid var(--border-gold); background: var(--bg-inner-parchment);">
+                            <h3 class="judgment-title" style="color: var(--gold-dark);">${outcome.title}</h3>
+                            <p class="judgment-body" style="color: var(--text-dark); font-weight: 600; margin-bottom: 8px;">${outcome.desc}</p>
+                            <p style="font-size: 0.95rem; color: var(--jury); font-weight: bold;">Biến động chỉ số: ${outcome.effect}</p>
+                        </div>
+ 
+                        <div class="narrative-box" style="border-left: 4px solid var(--gold-dark); background: var(--bg-inner-parchment); margin-bottom: 0;">
+                            ${outcome.mcConclusion}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Step by step conclusion rendering
+        let wrapUpStep = 1;
+        function renderWrapUpSlides(screen) {
+            if (wrapUpStep === 1) {
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">TỔNG KẾT PHIÊN TÒA</span>
+                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">RÚT RA BẢN CHẤT CẠNH TRANH ĐỘC QUYỀN</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                        </div>
+                        
+                        <div class="narrative-box" style="font-size: 1.15rem; line-height: 1.8; border-left: 4px solid var(--gold-dark); background: var(--bg-inner-parchment); margin-bottom: 24px;">
+                            "Qua ba vụ án vừa rồi, chúng ta có thể thấy thị trường ngày càng tập trung vào một số ít doanh nghiệp lớn. Đây là kết quả tất yếu của quá trình <strong>tích tụ và tập trung tư bản</strong>, làm xuất hiện các tổ chức độc quyền có khả năng chi phối mạnh mẽ thị trường."<br><br>
+                            <strong>Theo Kinh tế chính trị Mác – Lênin:</strong> Cạnh tranh không mất đi khi xuất hiện độc quyền mà chuyển sang một giai đoạn phức tạp hơn. Các tập đoàn tiếp tục cạnh tranh khốc liệt để bảo vệ thị phần, đồng thời dùng ưu thế về vốn, công nghệ và dữ liệu để chèn ép các doanh nghiệp nhỏ.
+                        </div>
+
+                        <div style="text-align: center;">
+                            <button class="btn btn-primary" onclick="setWrapUpStep(2)">Xem Đánh Giá Tác Động</button>
+                        </div>
+                    </div>
+                `;
+            } else if (wrapUpStep === 2) {
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">ẢNH HƯỞNG THỊ TRƯỜNG</span>
+                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">TÁC ĐỘNG CỦA CẠNH TRANH ĐỘC QUYỀN</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                        </div>
+                        
+                        <div class="impact-card-wrapper" style="margin-bottom: 24px;">
+                            <div class="impact-card-small">
+                                <h4>Đối với Doanh nghiệp nhỏ & Startup</h4>
+                                <ul>
+                                    <li>Khó tiếp cận khách hàng do ưu thế nền tảng.</li>
+                                    <li>Thiếu hụt vốn nghiêm trọng để cạnh tranh giá.</li>
+                                    <li>Dễ bị thâu tóm (M&A) hoặc bị sao chép ý tưởng.</li>
+                                    <li>Cơ hội phát triển ngày càng bị thu hẹp.</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="impact-card-small">
+                                <h4>Đối với Người lao động</h4>
+                                <ul>
+                                    <li>Thu nhập phụ thuộc nhiều vào các nền tảng lớn.</li>
+                                    <li>Chịu mức chiết khấu áp đặt rất cao.</li>
+                                    <li>Khả năng tự thương lượng công việc bị giảm sút.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel" style="margin-top: 15px; background: var(--bg-inner-parchment); margin-bottom: 24px;">
+                            <h4 style="color: var(--gold-dark); margin-bottom: 6px; font-size: 1.05rem; font-weight: 700; text-transform: uppercase;">Đối với Người tiêu dùng (Quyền lợi: ${state.indicators.social_benefit}/100 điểm)</h4>
+                            <p style="font-size: 0.95rem; color: var(--text-dark); line-height: 1.6;">
+                                Trong giai đoạn đầu, người tiêu dùng có thể được hưởng lợi từ các khuyến mãi giảm giá cực sâu. Tuy nhiên, khi doanh nghiệp độc quyền đã triệt hạ đối thủ và thống trị thị trường, họ sẽ tăng giá, cắt giảm khuyến mãi và hạn chế quyền lựa chọn.
+                            </p>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <button class="btn" onclick="setWrapUpStep(1)">Quay Lại</button>
+                            <button class="btn btn-primary" onclick="setWrapUpStep(3)">Xem 4 Kết Luận Mác-Lênin</button>
+                        </div>
+                    </div>
+                `;
+            } else if (wrapUpStep === 3) {
+                screen.innerHTML = `
+                    <div class="court-card-document">
+                        <div style="text-align: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">BÀI HỌC LÝ LUẬN</span>
+                            <h2 class="stage-title" style="font-size: 1.7rem; color: #5C4033; margin-top: 6px; margin-bottom: 6px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">BẢN CHẤT THEO LÝ LUẬN MÁC - LÊNIN</h2>
+                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 8px;">♦ ⚖ ♦</div>
+                        </div>
+                        
+                        <div class="conclusion-list" style="margin-bottom: 10px;">
+                            <div class="conclusion-item">
+                                <h4>Cạnh tranh không biến mất</h4>
+                                <p>Cạnh tranh không tiêu vong mà chuyển thành cạnh tranh gay gắt giữa các tập đoàn lớn để chiếm lĩnh vị thế bá chủ.</p>
+                            </div>
+                            <div class="conclusion-item">
+                                <h4>Lợi thế vượt trội & Lợi nhuận độc quyền</h4>
+                                <p>Các doanh nghiệp độc quyền dùng ưu thế vốn, công nghệ, dữ liệu quy mô lớn để áp đặt giá cả độc quyền nhằm thu về lợi nhuận vượt mức.</p>
+                            </div>
+                            <div class="conclusion-item">
+                                <h4>Bất lợi nghiêm trọng cho Startup</h4>
+                                <p>Các doanh nghiệp nhỏ và Startup luôn đối mặt với thế cạnh tranh cực kỳ bất đối xứng và nguy cơ bị triệt tiêu cao.</p>
+                            </div>
+                            <div class="conclusion-item">
+                                <h4>Vai trò điều tiết của Nhà nước</h4>
+                                <p>Nếu không có sự can thiệp và điều tiết pháp lý của Nhà nước, quyền lợi người tiêu dùng và người lao động chắc chắn sẽ bị tổn hại nghiêm trọng.</p>
+                            </div>
+                        </div>
+
+                        <div class="narrative-box" style="margin-top: 8px; font-size: 0.95rem; border-color: var(--border-legal); background: var(--bg-inner-parchment); margin-bottom: 12px;">
+                            <strong>Khuyến nghị cho sinh viên khởi nghiệp:</strong> Đừng bao giờ chọn đối đầu trực diện về quy mô hay cuộc chiến đốt vốn. Hãy thông minh khai thác <strong>thị trường ngách</strong>, ứng dụng công nghệ linh hoạt và phát huy sự sáng tạo thích ứng để tạo lợi thế!
+                        </div>
+
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <button class="btn" onclick="setWrapUpStep(2)">Quay Lại</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function setWrapUpStep(step) {
+            wrapUpStep = step;
+            renderCenterScreen();
+        }
+
+        // Render admin navigation controls in HUD
+        function renderControls() {
+            const controls = document.getElementById("presenter-controls");
+            const c = state.current_case;
+            const p = state.phase;
+
+            let html = "";
+
+            if (c === 0) {
+                html = `<button class="btn btn-primary" onclick="controlSetPhase(1, 'indictment')">Bắt Đầu Vụ Án 1</button>`;
+            }
+            else if (c >= 1 && c <= 3) {
+                if (p === "indictment") {
+                    html = `<button class="btn btn-primary" onclick="controlSetPhase(${c}, 'debate'); startTimer(60);">Bắt Đầu Tranh Tụng (1 Phút)</button>`;
+                }
+                else if (p === "debate") {
+                    html = `
+                        <button class="btn" onclick="startTimer(60)">Gia Hạn 1 Phút</button>
+                        <button class="btn btn-primary" onclick="controlSetPhase(${c}, 'voting'); startTimer(30);">Mở Cổng Bình Chọn (30 Giây)</button>
+                    `;
+                }
+                else if (p === "voting") {
+                    html = `
+                        <button class="btn" onclick="startTimer(30)">Gia Hạn 30 Giây</button>
+                        <button class="btn btn-danger" onclick="controlApplyJudgment()">Tuyên Phán Quyết Lâm Thời</button>
+                    `;
+                }
+                else if (p === "result") {
+                    if (c < 3) {
+                        html = `<button class="btn btn-primary" onclick="controlSetPhase(${c + 1}, 'indictment')">Chuyển Sang Vụ Án ${c + 1}</button>`;
+                    } else {
+                        html = `<button class="btn btn-primary" onclick="controlSetPhase(4, 'result'); setWrapUpStep(1);">Xem Tổng Kết Phiên Tòa</button>`;
+                    }
+                }
+            }
+            else if (c === 4) {
+                html = "";
+            }
+
+            controls.innerHTML = html;
+        }
+
+        function applyDecisionLocal(caseNum, option) {
+            state.decisions[caseNum] = option;
+            
+            let corp = 75;
+            let startup = 5000;
+            let social = 50;
+            
+            // Apply Case 1
+            if (state.decisions[1] === "A") {
+                corp -= 5;
+                startup += 500;
+                social += 10;
+            } else if (state.decisions[1] === "B") {
+                corp += 5;
+                startup -= 300;
+                social -= 10;
+            }
+            
+            // Apply Case 2
+            if (state.decisions[2] === "A") {
+                corp -= 10;
+                social += 5;
+            } else if (state.decisions[2] === "B") {
+                corp += 15;
+                startup -= 700;
+                social -= 5;
+            }
+            
+            // Apply Case 3
+            if (state.decisions[3] === "A") {
+                startup += 1000;
+                social += 15;
+            } else if (state.decisions[3] === "B") {
+                startup = 0; // Bankrupt
+                corp += 5;
+                social -= 15;
+            }
+            
+            state.indicators.corp_market_share = Math.max(0, Math.min(100, corp));
+            state.indicators.startup_fund = Math.max(0, startup);
+            state.indicators.social_benefit = Math.max(0, Math.min(100, social));
+        }
+
+        // API Control Functions
+        async function controlSetPhase(caseNum, phase) {
+            if (isSupabaseMode) {
+                if (phase === "indictment" || phase === "debate") {
+                    state.votes = { A: 0, B: 0 };
+                    state.votes_pct = { A: 0, B: 0 };
+                    state.total_votes = 0;
+                    state.voted_members = [];
+                }
+                state.current_case = caseNum;
+                state.phase = phase;
+                state.timer_active = false;
+                if (timerInterval) clearInterval(timerInterval);
+
+                saveStateLocal();
+                updateUI();
+                broadcastState();
+            } else {
+                try {
+                    await fetch('/api/control', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'set_phase', case: caseNum, phase: phase })
+                    });
+                    fetchState();
+                } catch (e) {
+                    console.error("Control set phase error:", e);
+                }
+            }
+        }
+
+        async function startTimer(duration) {
+            playTimerSound();
+            if (isSupabaseMode) {
+                startTimerLocal(duration);
+            } else {
+                try {
+                    await fetch('/api/control', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'trigger_timer', duration: duration })
+                    });
+                    fetchState();
+                } catch (e) {
+                    console.error("Control trigger timer error:", e);
+                }
+            }
+        }
+
+        async function controlApplyJudgment() {
+            if (isSupabaseMode) {
+                const caseNum = state.current_case;
+                let option = "A";
+                if (state.votes.B > state.votes.A) {
+                    option = "B";
+                }
+                applyDecisionLocal(caseNum, option);
+                state.phase = "result";
+                state.timer_active = false;
+                if (timerInterval) clearInterval(timerInterval);
+
+                saveStateLocal();
+                updateUI();
+                broadcastState();
+            } else {
+                try {
+                    await fetch('/api/control', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'apply_judgment' })
+                    });
+                    fetchState();
+                } catch (e) {
+                    console.error("Control apply judgment error:", e);
+                }
+            }
+        }
+
+        async function controlReset() {
+            if (confirm("Bạn có chắc chắn muốn thiết lập lại toàn bộ chỉ số trò chơi không?")) {
+                if (isSupabaseMode) {
+                    state = JSON.parse(JSON.stringify(defaultState));
+                    wrapUpStep = 1;
+                    if (timerInterval) clearInterval(timerInterval);
+                    
+                    saveStateLocal();
+                    updateUI();
+                    broadcastState();
+                } else {
+                    try {
+                        await fetch('/api/control', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'reset' })
+                        });
+                        wrapUpStep = 1;
+                        fetchState();
+                    } catch (e) {
+                        console.error("Control reset error:", e);
+                    }
+                }
+            }
+        }
+
+        // Periodically poll backend state (every 1 second)
+        if (!isSupabaseMode) {
+            fetchState();
+            setInterval(fetchState, 1000);
+        }
+    </script>
+</body>
+
+</html>
