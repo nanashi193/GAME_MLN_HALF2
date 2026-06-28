@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: game-mln-half2
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
