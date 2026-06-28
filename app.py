@@ -18,6 +18,37 @@ load_env_file()
 
 app = Flask(__name__)
 
+def get_supabase_config():
+    """Return browser-safe Supabase Realtime config from environment variables."""
+    return {
+        "url": os.environ.get("SUPABASE_URL", ""),
+        "key": os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("SUPABASE_KEY", "")
+    }
+
+def get_base_url():
+    """Build a URL that works both on LAN and behind a free hosting proxy."""
+    # 1. Render automatically sets RENDER_EXTERNAL_URL (highest priority)
+    render_url = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
+    if render_url:
+        return render_url
+
+    # 2. Manual override via PUBLIC_BASE_URL
+    public_base_url = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+    if public_base_url:
+        return public_base_url
+
+    # 3. Auto-detect from request headers (works behind proxies)
+    forwarded_proto = request.headers.get("X-Forwarded-Proto", request.scheme)
+    forwarded_host = request.headers.get("X-Forwarded-Host", request.host)
+    host_without_port = forwarded_host.split(":", 1)[0]
+
+    # 4. Fallback to local IP for LAN usage
+    if host_without_port in {"localhost", "127.0.0.1"}:
+        port = request.host.split(":", 1)[1] if ":" in request.host else "5000"
+        return f"http://{get_local_ip()}:{port}"
+
+    return f"{forwarded_proto}://{forwarded_host}"
+
 # Server-side Game State
 game_state = {
     "current_case": 0,    # 0: lobby, 1: Case 1, 2: Case 2, 3: Case 3, 4: Wrap-up & Conclusion
@@ -112,18 +143,23 @@ def apply_decision(case_num, option):
 @app.route('/')
 @app.route('/presenter')
 def presenter():
-    local_ip = get_local_ip()
-    port = 5000
-    jury_url = f"http://{local_ip}:{port}/jury"
-    supabase_url = os.environ.get("SUPABASE_URL", "")
-    supabase_key = os.environ.get("SUPABASE_KEY", "")
-    return render_template('presenter.html', jury_url=jury_url, supabase_url=supabase_url, supabase_key=supabase_key)
+    jury_url = f"{get_base_url()}/jury"
+    supabase_config = get_supabase_config()
+    return render_template(
+        'presenter.html',
+        jury_url=jury_url,
+        supabase_url=supabase_config["url"],
+        supabase_key=supabase_config["key"]
+    )
 
 @app.route('/jury')
 def jury():
-    supabase_url = os.environ.get("SUPABASE_URL", "")
-    supabase_key = os.environ.get("SUPABASE_KEY", "")
-    return render_template('jury.html', supabase_url=supabase_url, supabase_key=supabase_key)
+    supabase_config = get_supabase_config()
+    return render_template(
+        'jury.html',
+        supabase_url=supabase_config["url"],
+        supabase_key=supabase_config["key"]
+    )
 
 @app.route('/api/state', methods=['GET'])
 def get_state():
