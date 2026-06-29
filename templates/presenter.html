@@ -792,22 +792,22 @@
             // INDICTMENT (Công bố cáo trạng)
             if (state.phase === "indictment") {
                 screen.innerHTML = `
-                    <div class="court-card-document">
-                        <div style="text-align: center; margin-bottom: 16px;">
+                    <div class="court-card-document" style="padding: 24px 32px; max-height: 100%; display: flex; flex-direction: column;">
+                        <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">CÔNG BỐ CÁO TRẠNG</span>
-                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
-                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                            <h2 class="stage-title" style="font-size: 1.8rem; color: #5C4033; margin-top: 6px; margin-bottom: 8px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
+                            <div style="color: var(--gold); font-size: 0.75rem; letter-spacing: 3px; margin-bottom: 12px;">♦ ⚖ ♦</div>
                         </div>
 
-                        <div class="narrative-box mc-quote" style="background: var(--bg-inner-parchment); border: 1px solid rgba(92, 64, 51, 0.15); box-shadow: none;">
+                        <div class="narrative-box mc-quote" style="background: var(--bg-inner-parchment); border: 1px solid rgba(92, 64, 51, 0.15); box-shadow: none; max-height: 420px; overflow-y: auto; font-size: 1.05rem; line-height: 1.6; padding: 20px 24px; border-radius: 6px; flex-grow: 1; margin: 0 0 16px 0; color: var(--text-dark);">
                             ${caseData.indictment}
                         </div>
 
-                        <div style="text-align: center; margin-top: 24px;">
-                            <h4 style="font-family: var(--font-baskerville); font-size: 0.95rem; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">CHUẨN BỊ TRANH TỤNG</h4>
+                        <div style="text-align: center; flex-shrink: 0; border-top: 1px double rgba(166, 124, 45, 0.2); padding-top: 16px;">
+                            <h4 style="font-family: var(--font-baskerville); font-size: 0.9rem; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">CHUẨN BỊ TRANH TỤNG</h4>
                             <div style="display: flex; gap: 24px; justify-content: center;">
-                                <div style="background: var(--bg-inner-parchment); border: 2px solid var(--plaintiff); border-radius: 4px; padding: 12px 24px; color: var(--plaintiff); font-weight: bold; font-family: var(--font-baskerville);">PHE NGUYÊN ĐƠN</div>
-                                <div style="background: var(--bg-inner-parchment); border: 2px solid var(--defendant); border-radius: 4px; padding: 12px 24px; color: var(--defendant); font-weight: bold; font-family: var(--font-baskerville);">PHE BỊ ĐƠN</div>
+                                <div style="background: var(--bg-inner-parchment); border: 2px solid var(--plaintiff); border-radius: 4px; padding: 10px 24px; color: var(--plaintiff); font-weight: bold; font-family: var(--font-baskerville);">PHE NGUYÊN ĐƠN</div>
+                                <div style="background: var(--bg-inner-parchment); border: 2px solid var(--defendant); border-radius: 4px; padding: 10px 24px; color: var(--defendant); font-weight: bold; font-family: var(--font-baskerville);">PHE BỊ ĐƠN</div>
                             </div>
                         </div>
                     </div>
@@ -818,30 +818,39 @@
             else if (state.phase === "debate") {
                 const timerClass = state.timer_active ? "active" : "";
                 screen.innerHTML = `
-                    <div class="court-card-document">
-                        <div style="text-align: center; margin-bottom: 16px;">
-                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">TRANH TỤNG NẢY LỬA</span>
-                            <h2 class="stage-title" style="font-size: 2rem; color: #5C4033; margin-top: 8px; margin-bottom: 12px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
-                            <div style="color: var(--gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 16px;">♦ ⚖ ♦</div>
+                    <div class="court-card-document" style="padding: 16px 24px; max-height: 100%; display: flex; flex-direction: column; height: 100%;">
+                        <div style="text-align: center; margin-bottom: 6px; flex-shrink: 0;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;">TRANH TỤNG NẢY LỬA</span>
+                            <h2 class="stage-title" style="font-size: 1.4rem; color: #5C4033; margin-top: 2px; margin-bottom: 4px; font-family: var(--font-baskerville); border-bottom: none; padding-bottom: 0; text-transform: uppercase;">${caseData.title}</h2>
+                            <div style="color: var(--gold); font-size: 0.65rem; letter-spacing: 3px; margin-bottom: 4px;">♦ ⚖ ♦</div>
                         </div>
 
-                        <div class="debate-grid">
-                            <div class="debate-card plaintiff">
-                                <h3 style="font-family: var(--font-baskerville); color: var(--plaintiff); border-bottom: 1px solid rgba(74, 107, 130, 0.2); padding-bottom: 6px; margin-bottom: 12px;">PHE NGUYÊN ĐƠN</h3>
-                                <div style="color: var(--text-dark); line-height: 1.6; text-align: left;">${caseData.plaintiffArg}</div>
+                        <!-- Indictment text on top of debate cards -->
+                        <div class="narrative-box mc-quote" style="background: var(--bg-inner-parchment); border: 1px solid rgba(92, 64, 51, 0.1); box-shadow: none; margin: 0 0 12px 0; max-height: 110px; overflow-y: auto; font-size: 0.85rem; line-height: 1.5; padding: 10px 16px; border-radius: 4px; flex-shrink: 0; color: var(--text-dark);">
+                            <strong>Cáo trạng chi tiết:</strong> ${caseData.indictment}
+                        </div>
+
+                        <!-- Debate Cards Side-by-Side -->
+                        <div class="debate-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex-grow: 1; min-height: 0; margin-top: 0; margin-bottom: 12px;">
+                            <div class="debate-card plaintiff" style="padding: 12px 16px; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-inner-parchment); box-shadow: none;">
+                                <h3 style="font-family: var(--font-baskerville); color: var(--plaintiff); border-bottom: 1px solid rgba(74, 107, 130, 0.2); padding-bottom: 4px; margin-bottom: 8px; font-size: 0.92rem; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0;">PHE NGUYÊN ĐƠN (Gợi ý tranh luận)</h3>
+                                <div style="overflow-y: auto; flex-grow: 1; color: var(--text-dark); line-height: 1.5; font-size: 0.85rem; text-align: left;">${caseData.plaintiffArg}</div>
                             </div>
-                            <div class="debate-card defendant">
-                                <h3 style="font-family: var(--font-baskerville); color: var(--defendant); border-bottom: 1px solid rgba(148, 77, 77, 0.2); padding-bottom: 6px; margin-bottom: 12px;">PHE BỊ ĐƠN</h3>
-                                <div style="color: var(--text-dark); line-height: 1.6; text-align: left;">${caseData.defendantArg}</div>
+                            <div class="debate-card defendant" style="padding: 12px 16px; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-inner-parchment); box-shadow: none;">
+                                <h3 style="font-family: var(--font-baskerville); color: var(--defendant); border-bottom: 1px solid rgba(148, 77, 77, 0.2); padding-bottom: 4px; margin-bottom: 8px; font-size: 0.92rem; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0;">PHE BỊ ĐƠN (Gợi ý tranh luận)</h3>
+                                <div style="overflow-y: auto; flex-grow: 1; color: var(--text-dark); line-height: 1.5; font-size: 0.85rem; text-align: left;">${caseData.defendantArg}</div>
                             </div>
                         </div>
  
-                        <div class="timer-container ${timerClass}" style="margin: 24px auto 12px auto; background: var(--bg-inner-parchment); border: 2px solid var(--border-legal);">
-                            <div class="timer-val" id="timer-display" style="color: var(--gold-dark);">${state.timer_remaining}</div>
-                            <div class="timer-label" style="color: var(--border-legal);">Giây còn lại</div>
-                        </div>
-                        <div class="text-center" style="color: var(--border-legal); font-size: 0.85rem; font-style: italic;">
-                            Đại diện mỗi bên có tối đa 1 phút để thuyết phục Hội đồng bồi thẩm.
+                        <!-- Bottom Timer/Status Row -->
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; border-top: 1px double rgba(166, 124, 45, 0.25); padding-top: 8px; flex-shrink: 0;">
+                            <div class="timer-container active" style="margin: 0; background: var(--bg-inner-parchment); border: 2px solid var(--border-legal); padding: 4px 16px; min-width: 140px; display: flex; flex-direction: row; gap: 10px; align-items: center; justify-content: center; border-radius: 4px; box-shadow: 0 0 10px rgba(166,124,45,0.15);">
+                                <div class="timer-val" id="timer-display" style="color: var(--gold-dark); font-size: 1.4rem; font-weight: bold;">${state.timer_remaining}</div>
+                                <div class="timer-label" style="color: var(--border-legal); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Giây còn lại</div>
+                            </div>
+                            <div style="color: var(--border-legal); font-size: 0.8rem; font-style: italic; max-width: 500px; text-align: left; line-height: 1.35;">
+                                Đại diện mỗi bên có tối đa 3 phút để thuyết phục Hội đồng bồi thẩm.
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1024,7 +1033,7 @@
             }
             else if (c >= 1 && c <= 3) {
                 if (p === "indictment") {
-                    html = `<button class="btn btn-primary" onclick="controlSetPhase(${c}, 'debate'); startTimer(60);">Bắt Đầu Tranh Tụng (1 Phút)</button>`;
+                    html = `<button class="btn btn-primary" onclick="controlSetPhase(${c}, 'debate'); startTimer(180);">Bắt Đầu Tranh Tụng (3 Phút)</button>`;
                 }
                 else if (p === "debate") {
                     html = `
