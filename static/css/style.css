@@ -309,10 +309,10 @@ body {
 .courtroom-stage {
     display: grid;
     grid-template-rows: 1fr auto;
-    gap: 24px;
+    gap: 12px;
     height: 100%;
     overflow: hidden;
-    padding: 28px 24px;
+    padding: 16px 20px;
 }
 
 .wood-frame-container {
@@ -425,31 +425,35 @@ body {
 /* Court Timers */
 .timer-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    margin: 28px auto;
-    width: 140px;
-    height: 140px;
-    border-radius: 0px; /* Square official look */
-    border: 3px double var(--border-gold);
-    background: rgba(0,0,0,0.4);
-    position: relative;
+    gap: 12px;
+    margin: 10px auto;
+    padding: 6px 18px;
+    width: fit-content;
+    height: auto;
+    border-radius: 4px;
+    border: 2px solid var(--border-gold);
+    background: #1e1612;
+    box-shadow: 0 0 12px rgba(166, 124, 45, 0.35), inset 0 0 8px rgba(0, 0, 0, 0.6);
 }
 
 .timer-val {
-    font-size: 3.2rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    color: var(--gold);
+    color: #FFC04D;
     font-family: var(--font-baskerville);
+    text-shadow: 0 0 8px rgba(255, 192, 77, 0.4);
 }
 
 .timer-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 0;
+    font-weight: bold;
 }
 
 /* Control HUD (Bottom of Center Stage) */
@@ -457,7 +461,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 20px;
+    padding-top: 10px;
     border-top: 2px double var(--border-gold);
 }
 
@@ -465,11 +469,11 @@ body {
     background: var(--border-legal);
     border: 2px solid var(--border-gold);
     color: #FFF;
-    padding: 12px 28px;
+    padding: 8px 18px;
     border-radius: 0px;
     font-family: var(--font-serif);
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.82rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
     text-transform: uppercase;
