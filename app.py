@@ -49,6 +49,11 @@ def get_base_url():
 
     return f"{forwarded_proto}://{forwarded_host}"
 
+@app.route('/loaderio-3ae261bc84970aeee16be4ece68bb8f7.txt')
+@app.route('/loaderio-3ae261bc84970aeee16be4ece68bb8f7/')
+def loaderio_verify():
+    return "loaderio-3ae261bc84970aeee16be4ece68bb8f7"
+
 # Server-side Game State
 game_state = {
     "current_case": 0,    # 0: lobby, 1: Case 1, 2: Case 2, 3: Case 3, 4: Wrap-up & Conclusion
