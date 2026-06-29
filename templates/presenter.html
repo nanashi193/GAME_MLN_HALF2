@@ -833,11 +833,11 @@
                         <!-- Debate Cards Side-by-Side (shorter fixed height) -->
                         <div class="debate-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 230px; flex-shrink: 0; margin-top: 0; margin-bottom: 8px;">
                             <div class="debate-card plaintiff" style="padding: 10px 14px; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-inner-parchment); box-shadow: none; height: 100%;">
-                                <h3 style="font-family: var(--font-baskerville); color: var(--plaintiff); border-bottom: 1px solid rgba(74, 107, 130, 0.2); padding-bottom: 4px; margin-bottom: 6px; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">PHE NGUYÊN ĐƠN (Gợi ý tranh luận)</h3>
+                                <h3 style="font-family: var(--font-baskerville); color: var(--plaintiff); border-bottom: 1px solid rgba(74, 107, 130, 0.2); padding-bottom: 4px; margin-bottom: 6px; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">PHE NGUYÊN ĐƠN</h3>
                                 <div style="overflow-y: auto; flex-grow: 1; color: var(--text-dark); line-height: 1.45; font-size: 0.82rem; text-align: left;">${caseData.plaintiffArg}</div>
                             </div>
                             <div class="debate-card defendant" style="padding: 10px 14px; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-inner-parchment); box-shadow: none; height: 100%;">
-                                <h3 style="font-family: var(--font-baskerville); color: var(--defendant); border-bottom: 1px solid rgba(148, 77, 77, 0.2); padding-bottom: 4px; margin-bottom: 6px; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">PHE BỊ ĐƠN (Gợi ý tranh luận)</h3>
+                                <h3 style="font-family: var(--font-baskerville); color: var(--defendant); border-bottom: 1px solid rgba(148, 77, 77, 0.2); padding-bottom: 4px; margin-bottom: 6px; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">PHE BỊ ĐƠN</h3>
                                 <div style="overflow-y: auto; flex-grow: 1; color: var(--text-dark); line-height: 1.45; font-size: 0.82rem; text-align: left;">${caseData.defendantArg}</div>
                             </div>
                         </div>
@@ -849,7 +849,7 @@
                                 <div class="timer-label">Giây còn lại</div>
                             </div>
                             <div style="color: ${state.timer_remaining <= 0 ? 'var(--defendant)' : 'var(--border-legal)'}; font-size: 0.78rem; font-style: italic; max-width: 500px; text-align: left; line-height: 1.3; font-weight: ${state.timer_remaining <= 0 ? 'bold' : 'normal'};">
-                                ${state.timer_remaining <= 0 ? "Đã hết thời gian" : "Đại diện mỗi bên có tối đa 3 phút để thuyết phục Hội đồng bồi thẩm."}
+                                ${state.timer_remaining <= 0 ? "Đã hết thời gian" : "Đại diện hai bên có tối đa 3 phút để thuyết phục Hội đồng bồi thẩm."}
                             </div>
                         </div>
                     </div>
